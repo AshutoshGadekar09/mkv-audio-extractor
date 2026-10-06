@@ -2,7 +2,10 @@
 
 import json
 import logging
+import os
+import shutil
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -10,6 +13,68 @@ from typing import Optional
 from .languages import get_language_name
 
 logger = logging.getLogger(__name__)
+
+
+def get_binary_path(name: str) -> str:
+    """Find the full path to a binary (ffmpeg or ffprobe), checking bundled paths first.
+
+    Args:
+        name: Base binary name ("ffmpeg" or "ffprobe").
+
+    Returns:
+        Full path to the executable or base name if not found.
+    """
+    exe_name = f"{name}.exe" if sys.platform == "win32" else name
+
+    # 1. Custom environment variable override (e.g. FFMPEG_PATH)
+    env_var = f"{name.upper()}_PATH"
+    if os.environ.get(env_var):
+        cand = Path(os.environ[env_var])
+        if cand.is_file():
+            return str(cand)
+
+    # 2. PyInstaller temporary extracted folder (_MEIPASS)
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+        for cand in [
+            base_dir / exe_name,
+            base_dir / "bin" / exe_name,
+            base_dir / "ffmpeg" / exe_name,
+        ]:
+            if cand.is_file():
+                return str(cand)
+
+    # 3. Alongside current executable or package root
+    search_dirs = [
+        Path(sys.executable).parent,
+        Path(sys.executable).parent / "bin",
+        Path(__file__).resolve().parent.parent.parent,
+        Path(__file__).resolve().parent.parent.parent / "bin",
+    ]
+    for directory in search_dirs:
+        cand = directory / exe_name
+        if cand.is_file():
+            return str(cand)
+
+    # 4. In system PATH
+    found = shutil.which(name)
+    if found:
+        return found
+    if sys.platform == "win32":
+        found_exe = shutil.which(exe_name)
+        if found_exe:
+            return found_exe
+
+    # Default fallback
+    return exe_name
+
+
+def get_subprocess_kwargs() -> dict:
+    """Get subprocess keyword arguments for platform compatibility (hiding console on Windows)."""
+    kwargs = {}
+    if sys.platform == "win32":
+        kwargs["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+    return kwargs
 
 
 @dataclass
@@ -105,23 +170,33 @@ def check_ffprobe() -> tuple[bool, str]:
     Returns:
         Tuple of (is_available, message).
     """
+    binary = get_binary_path("ffprobe")
     try:
         result = subprocess.run(
-            ["ffprobe", "-version"],
+            [binary, "-version"],
             capture_output=True,
             text=True,
             timeout=10,
+            **get_subprocess_kwargs(),
         )
         if result.returncode == 0:
             version_line = result.stdout.split("\n")[0] if result.stdout else "unknown"
             return True, f"ffprobe found: {version_line}"
         return False, "ffprobe found but returned an error."
     except FileNotFoundError:
+        if sys.platform == "win32":
+            return False, (
+                "ffprobe not found. Please install ffmpeg:\n"
+                "  1. Install via winget: winget install Gyan.FFmpeg\n"
+                "  2. Or download from https://www.gyan.dev/ffmpeg/builds/ and place in PATH\n"
+                "  3. Or place ffprobe.exe in the application's 'bin' folder"
+            )
         return False, (
             "ffprobe not found. Please install ffmpeg:\n"
             "  Ubuntu/Debian: sudo apt install ffmpeg\n"
             "  Fedora: sudo dnf install ffmpeg\n"
-            "  Arch: sudo pacman -S ffmpeg"
+            "  Arch: sudo pacman -S ffmpeg\n"
+            "  macOS: brew install ffmpeg"
         )
     except subprocess.TimeoutExpired:
         return False, "ffprobe timed out."
@@ -135,23 +210,33 @@ def check_ffmpeg() -> tuple[bool, str]:
     Returns:
         Tuple of (is_available, message).
     """
+    binary = get_binary_path("ffmpeg")
     try:
         result = subprocess.run(
-            ["ffmpeg", "-version"],
+            [binary, "-version"],
             capture_output=True,
             text=True,
             timeout=10,
+            **get_subprocess_kwargs(),
         )
         if result.returncode == 0:
             version_line = result.stdout.split("\n")[0] if result.stdout else "unknown"
             return True, f"ffmpeg found: {version_line}"
         return False, "ffmpeg found but returned an error."
     except FileNotFoundError:
+        if sys.platform == "win32":
+            return False, (
+                "ffmpeg not found. Please install ffmpeg:\n"
+                "  1. Install via winget: winget install Gyan.FFmpeg\n"
+                "  2. Or download from https://www.gyan.dev/ffmpeg/builds/ and place in PATH\n"
+                "  3. Or place ffmpeg.exe in the application's 'bin' folder"
+            )
         return False, (
             "ffmpeg not found. Please install ffmpeg:\n"
             "  Ubuntu/Debian: sudo apt install ffmpeg\n"
             "  Fedora: sudo dnf install ffmpeg\n"
-            "  Arch: sudo pacman -S ffmpeg"
+            "  Arch: sudo pacman -S ffmpeg\n"
+            "  macOS: brew install ffmpeg"
         )
     except subprocess.TimeoutExpired:
         return False, "ffmpeg timed out."
@@ -183,10 +268,11 @@ def probe_file(file_path: Path) -> FileInfo:
 
     logger.info("Probing file: %s", file_path)
 
+    binary = get_binary_path("ffprobe")
     try:
         result = subprocess.run(
             [
-                "ffprobe",
+                binary,
                 "-v", "quiet",
                 "-print_format", "json",
                 "-show_format",
@@ -196,6 +282,7 @@ def probe_file(file_path: Path) -> FileInfo:
             capture_output=True,
             text=True,
             timeout=60,
+            **get_subprocess_kwargs(),
         )
     except subprocess.TimeoutExpired:
         raise RuntimeError(f"ffprobe timed out while probing: {file_path}")

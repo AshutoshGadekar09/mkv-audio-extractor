@@ -7,6 +7,13 @@ def main() -> None:
     """Main entry point — launches GUI if no arguments, CLI otherwise."""
     # If run with arguments (other than just the script name), use CLI
     if len(sys.argv) > 1 and not sys.argv[1].startswith("--gui"):
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                # Attach to parent console if launched from CMD or PowerShell
+                ctypes.windll.kernel32.AttachConsole(-1)
+            except Exception:
+                pass
         from .cli import main as cli_main
         cli_main()
     else:

@@ -1,0 +1,44 @@
+{
+  "name": "mkv-audio-extractor",
+  "version": "1.0.0",
+  "description": "Extract audio tracks from MKV files with language selection (CLI & PyQt6 GUI)",
+  "main": "index.js",
+  "bin": {
+    "mkv-audio-extractor": "./bin/mkv-audio-extractor.js"
+  },
+  "files": [
+    "bin/",
+    "index.js",
+    "mkv_audio_extractor/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node -e \"require('./index.js'); console.log('✓ JS module loads successfully')\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AshutoshGadekar09/mkv-audio-extractor.git"
+  },
+  "keywords": [
+    "mkv",
+    "audio",
+    "extractor",
+    "ffmpeg",
+    "ffprobe",
+    "multitrack",
+    "audio-extractor",
+    "media",
+    "matroska",
+    "cli"
+  ],
+  "author": "Ashutosh Gadekar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AshutoshGadekar09/mkv-audio-extractor/issues"
+  },
+  "homepage": "https://github.com/AshutoshGadekar09/mkv-audio-extractor#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -12,10 +12,6 @@ requires-python = ">=3.10"
 authors = [{name = "Ashutosh Gadekar"}]
 keywords = ["mkv", "audio", "extractor", "ffmpeg", "ffprobe"]
 
-[project.urls]
-Homepage = "https://github.com/AshutoshGadekar09/mkv-audio-extractor"
-Repository = "https://github.com/AshutoshGadekar09/mkv-audio-extractor"
-Issues = "https://github.com/AshutoshGadekar09/mkv-audio-extractor/issues"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -29,6 +25,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Multimedia :: Sound/Audio :: Conversion",
 ]
+
+[project.urls]
+Homepage = "https://github.com/AshutoshGadekar09/mkv-audio-extractor"
+Repository = "https://github.com/AshutoshGadekar09/mkv-audio-extractor"
+Issues = "https://github.com/AshutoshGadekar09/mkv-audio-extractor/issues"
 dependencies = []
 
 [project.optional-dependencies]

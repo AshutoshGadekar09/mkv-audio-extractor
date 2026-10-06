@@ -3,15 +3,17 @@
 import logging
 import os
 import re
+import shutil
 import signal
 import subprocess
+import sys
 import threading
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Optional
 
-from .probe import AudioTrack, FileInfo
+from .probe import AudioTrack, FileInfo, get_binary_path, get_subprocess_kwargs
 
 logger = logging.getLogger(__name__)
 
@@ -88,32 +90,40 @@ ProgressCallback = Callable[[int, int, float, str], None]
 
 
 def sanitize_filename(name: str) -> str:
-    """Sanitize a string for use as a filename on Linux.
+    """Sanitize a string for use as a filename on Linux, Windows, and macOS.
 
     Args:
         name: The raw filename string.
 
     Returns:
-        A sanitized filename safe for Linux filesystems.
+        A sanitized filename safe for all major filesystems.
     """
-    # Replace path separators and null bytes
-    name = name.replace("/", "_").replace("\0", "")
+    # Replace path separators (both / and \) and null bytes
+    name = name.replace("/", "_").replace("\\", "_").replace("\0", "")
 
-    # Remove or replace problematic characters for general compatibility
-    # Keep unicode letters, digits, spaces, dots, hyphens, underscores
-    name = re.sub(r'[<>:"|?*]', "_", name)
+    # Remove or replace problematic characters for Windows and Unix
+    name = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", name)
 
     # Collapse multiple underscores/spaces
     name = re.sub(r"[_\s]+", "_", name)
 
-    # Strip leading/trailing dots and whitespace
+    # Strip leading/trailing dots and whitespace (illegal on Windows)
     name = name.strip(". \t")
 
     # Ensure non-empty
     if not name:
         name = "untitled"
 
-    # Truncate to a reasonable length (255 bytes is Linux filename limit)
+    # Avoid Windows reserved DOS device names (CON, PRN, AUX, NUL, COM1-9, LPT1-9)
+    windows_reserved = {
+        "CON", "PRN", "AUX", "NUL",
+        *(f"COM{i}" for i in range(1, 10)),
+        *(f"LPT{i}" for i in range(1, 10)),
+    }
+    if name.upper() in windows_reserved:
+        name = f"_{name}"
+
+    # Truncate to a reasonable length (255 bytes limit)
     # Use 200 to leave room for extension and language suffix
     if len(name.encode("utf-8")) > 200:
         while len(name.encode("utf-8")) > 200:
@@ -211,7 +221,7 @@ class Extractor:
         with self._lock:
             if self._current_process and self._current_process.poll() is None:
                 try:
-                    self._current_process.send_signal(signal.SIGTERM)
+                    self._current_process.terminate()
                 except OSError:
                     pass
 
@@ -329,8 +339,7 @@ class Extractor:
             OSError: If there's not enough disk space.
         """
         try:
-            stat = os.statvfs(directory)
-            free_bytes = stat.f_bavail * stat.f_frsize
+            free_bytes = shutil.disk_usage(directory).free
             # Estimate: audio is typically much smaller than video
             # Use 10% of source file size as a rough estimate
             estimated_size = task.file_info.size // 10
@@ -356,8 +365,9 @@ class Extractor:
         Returns:
             Command as a list of strings.
         """
+        binary = get_binary_path("ffmpeg")
         cmd: list[str] = [
-            "ffmpeg",
+            binary,
             "-y",  # Overwrite output
             "-i", str(task.file_info.path),
             "-map", f"0:{task.track.index}",
@@ -416,6 +426,7 @@ class Extractor:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
+                    **get_subprocess_kwargs(),
                 )
 
             duration = task.track.duration or task.file_info.duration or 0

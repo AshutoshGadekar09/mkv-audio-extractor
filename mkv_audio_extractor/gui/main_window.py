@@ -98,6 +98,29 @@ class TrackCheckBox(QCheckBox):
         self.file_info = file_info
 
 
+def load_app_icon() -> QIcon:
+    """Find and load the application icon across platforms."""
+    candidates = []
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+        candidates.extend([
+            base_dir / "icon.ico",
+            base_dir / "mkv-audio-extractor.svg",
+            base_dir / "mkv-audio-extractor.png",
+        ])
+    pkg_dir = Path(__file__).resolve().parent.parent.parent
+    candidates.extend([
+        pkg_dir / "icon.ico",
+        pkg_dir / "mkv-audio-extractor.svg",
+        pkg_dir / "mkv-audio-extractor.png",
+        Path("/usr/share/icons/hicolor/scalable/apps/mkv-audio-extractor.svg"),
+    ])
+    for cand in candidates:
+        if cand.is_file():
+            return QIcon(str(cand))
+    return QIcon()
+
+
 class MainWindow(QMainWindow):
     """Main application window."""
 
@@ -106,6 +129,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MKV Audio Extractor")
         self.setMinimumSize(900, 700)
         self.setAcceptDrops(True)
+
+        icon = load_app_icon()
+        if not icon.isNull():
+            self.setWindowIcon(icon)
 
         self.extractor = Extractor()
         self.worker: Optional[ExtractionWorker] = None
@@ -691,9 +718,22 @@ def run_gui() -> int:
     Returns:
         Application exit code.
     """
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                "AshutoshGadekar.MKVAudioExtractor.1.0"
+            )
+        except Exception:
+            pass
+
     app = QApplication(sys.argv)
     app.setApplicationName("MKV Audio Extractor")
     app.setApplicationVersion("1.0.0")
+
+    icon = load_app_icon()
+    if not icon.isNull():
+        app.setWindowIcon(icon)
 
     # Set application style
     app.setStyle("Fusion")
