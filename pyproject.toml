@@ -26,11 +26,12 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio :: Conversion",
 ]
 
+dependencies = []
+
 [project.urls]
 Homepage = "https://github.com/AshutoshGadekar09/mkv-audio-extractor"
 Repository = "https://github.com/AshutoshGadekar09/mkv-audio-extractor"
 Issues = "https://github.com/AshutoshGadekar09/mkv-audio-extractor/issues"
-dependencies = []
 
 [project.optional-dependencies]
 gui = ["PyQt6>=6.5.0"]
