@@ -4,7 +4,7 @@
   "description": "Extract audio tracks from MKV files with language selection (CLI & PyQt6 GUI)",
   "main": "index.js",
   "bin": {
-    "mkv-audio-extractor": "./bin/mkv-audio-extractor.js"
+    "mkv-audio-extractor": "bin/mkv-audio-extractor.js"
   },
   "files": [
     "bin/",
