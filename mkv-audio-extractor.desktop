@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=MKV Audio Extractor
+Comment=Extract audio tracks from MKV files
+Exec=python3 -m mkv_audio_extractor --gui
+Icon=audio-x-generic
+Terminal=false
+Categories=AudioVideo;Audio;Utility;
+Keywords=mkv;audio;extract;ffmpeg;
+MimeType=video/x-matroska;
+StartupNotify=true

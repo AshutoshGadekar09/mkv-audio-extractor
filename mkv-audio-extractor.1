@@ -1,0 +1,70 @@
+.TH MKV-AUDIO-EXTRACTOR 1 "October 2026" "1.0.0" "User Commands"
+.SH NAME
+mkv-audio-extractor \- extract audio tracks from MKV files with language selection
+.SH SYNOPSIS
+.B mkv-audio-extractor
+[\fIOPTIONS\fR] \fIFILE_OR_DIR\fR...
+.br
+.B mkv-audio-extractor
+[\fIwithout options launches GUI\fR]
+.SH DESCRIPTION
+.B mkv-audio-extractor
+is a utility to extract audio tracks from Matroska (.mkv) video files.
+It supports both a PyQt6 graphical interface and a command-line interface.
+It allows filtering tracks by ISO 639 language codes, copying streams without re-encoding,
+or converting them to MP3, AAC, FLAC, Opus, or WAV.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show help message and exit.
+.TP
+.BR \-\-list
+List audio tracks in the specified file(s) and exit without extracting.
+.TP
+.BR \-\-all
+Extract all audio tracks found in the input files.
+.TP
+.BI \-\-lang " CODES"
+Comma-separated ISO 639 language codes to extract (e.g., hin,tam,tel,jpn,eng).
+.TP
+.BI \-\-track " INDICES"
+Comma-separated track stream indices to extract (0-based, e.g., 0,2,4).
+.TP
+.BI \-\-mode " {copy,convert}"
+Extraction mode: \fBcopy\fR (default, lossless extraction preserving stream codec)
+or \fBconvert\fR (re-encode to specified format).
+.TP
+.BI \-\-convert\-to " {mp3,aac,flac,opus,wav}"
+Target audio format when using \fB\-\-mode convert\fR.
+.TP
+.BI \-\-bitrate " BITRATE"
+Audio bitrate for conversion (e.g., 192k, 320k).
+.TP
+.BI \-o ", " \-\-output " DIR"
+Destination directory for extracted audio files. Default is a subfolder named after the source video file.
+.TP
+.BR \-r ", " \-\-recursive
+Recursively scan directories for MKV files.
+.TP
+.BI \-\-overwrite " {rename,overwrite,skip}"
+Action to take when an output file already exists. Default is \fBrename\fR.
+.TP
+.BR \-v ", " \-\-verbose
+Enable verbose logging output.
+.SH EXAMPLES
+.TP
+.B Extract Hindi, Tamil, and Japanese audio tracks in copy mode:
+mkv-audio-extractor "movie.mkv" \-\-lang hin,tam,jpn \-\-mode copy
+.TP
+.B Extract all audio tracks to a specific folder:
+mkv-audio-extractor "movie.mkv" \-\-all \-o ~/Music/extracted
+.TP
+.B Convert English audio to 320k MP3:
+mkv-audio-extractor "movie.mkv" \-\-lang eng \-\-mode convert \-\-convert-to mp3 \-\-bitrate 320k
+.TP
+.B List tracks without extracting:
+mkv-audio-extractor "movie.mkv" \-\-list
+.SH AUTHOR
+Ashutosh Gadekar (https://github.com/AshutoshGadekar09/mkv-audio-extractor)
+.SH COPYRIGHT
+MIT License

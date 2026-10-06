@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base rounded rectangle -->
+  <rect x="8" y="8" width="112" height="112" rx="24" fill="url(#bg)" stroke="#334155" stroke-width="2"/>
+
+  <!-- Subtle glow ring -->
+  <rect x="12" y="12" width="104" height="104" rx="20" fill="none" stroke="#475569" stroke-width="1" opacity="0.4"/>
+
+  <!-- Audio Waveform Bars -->
+  <g fill="url(#wave)">
+    <rect x="24" y="56" width="6" height="16" rx="3"/>
+    <rect x="34" y="44" width="6" height="40" rx="3"/>
+    <rect x="44" y="32" width="6" height="64" rx="3"/>
+    <rect x="54" y="48" width="6" height="32" rx="3"/>
+    <rect x="64" y="24" width="6" height="80" rx="3"/>
+    <rect x="74" y="40" width="6" height="48" rx="3"/>
+    <rect x="84" y="52" width="6" height="24" rx="3"/>
+    <rect x="94" y="60" width="6" height="8" rx="3"/>
+  </g>
+
+  <!-- MKV Badge in top-left -->
+  <rect x="18" y="18" width="36" height="18" rx="5" fill="url(#badge)"/>
+  <text x="36" y="31" fill="#ffffff" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="9" text-anchor="middle" letter-spacing="1">MKV</text>
+
+  <!-- Extract Arrow in bottom-right -->
+  <circle cx="98" cy="98" r="14" fill="#0284c7"/>
+  <path d="M 98 90 L 98 102 M 93 97 L 98 102 L 103 97" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
