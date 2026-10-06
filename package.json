@@ -14,7 +14,11 @@
     "LICENSE"
   ],
   "scripts": {
+    "prepack": "find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true",
     "test": "node -e \"require('./index.js'); console.log('✓ JS module loads successfully')\""
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",
