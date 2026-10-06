@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mkv-audio-extractor"
-version = "1.0.0"
+version = "1.0.1"
 description = "Extract audio tracks from MKV files with language selection"
 readme = "README.md"
 license = {text = "MIT"}

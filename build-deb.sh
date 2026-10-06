@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PKG_NAME="mkv-audio-extractor"
-PKG_VERSION="1.0.0"
+PKG_VERSION="1.0.1"
 PKG_ARCH="all"
 PKG_FULLNAME="${PKG_NAME}_${PKG_VERSION}_${PKG_ARCH}"
 
