@@ -191,13 +191,11 @@ echo "-> Assembling package with dpkg-deb..."
 DEB_FILE="$DIST_DIR/${PKG_FULLNAME}.deb"
 dpkg-deb --build --root-owner-group "$BUILD_DIR" "$DEB_FILE"
 
-# Also copy to Downloads directory for easy access
-cp "$DEB_FILE" "/home/vickey/Downloads/${PKG_FULLNAME}.deb"
-
-echo
-echo "✓ Package successfully created!"
-echo "  Location: $DEB_FILE"
-echo "  Copy in:  /home/vickey/Downloads/${PKG_FULLNAME}.deb"
+# Also copy to Downloads directory for easy access if present
+if [ -d "$HOME/Downloads" ]; then
+    cp "$DEB_FILE" "$HOME/Downloads/${PKG_FULLNAME}.deb"
+    echo "  Copy in:  $HOME/Downloads/${PKG_FULLNAME}.deb"
+fi
 echo
 echo "To install on any Debian/Ubuntu system:"
 echo "  sudo apt install ./$PKG_FULLNAME.deb"
